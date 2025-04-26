@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    // turbopack'ı dev modda pasif etmek istersen:
+    // turbo: false,
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

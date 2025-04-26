@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { Download, Loader2, Sparkles, UploadCloud } from "lucide-react";
-import { generateCaption, generateHashtags } from "@/lib/openai";
 
 export default function ReelCraftStudio() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -17,14 +16,25 @@ export default function ReelCraftStudio() {
   };
 
   const handleGenerate = async () => {
+    if (!videoFile) return;
     setLoading(true);
     try {
-      const [captionRes, hashtagsRes] = await Promise.all([
-        generateCaption(),
-        generateHashtags(),
-      ]);
-      setCaption(captionRes || "No caption generated.");
-      setHashtags(hashtagsRes || "#NoHashtagsFound");
+      const formData = new FormData();
+      formData.append("file", videoFile);
+
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        setCaption("Error: " + data.error);
+        setHashtags("#Error");
+      } else {
+        setCaption(data.caption);
+        setHashtags(data.hashtags);
+      }
     } catch (err) {
       console.error(err);
       setCaption("Error generating caption.");
@@ -44,8 +54,12 @@ export default function ReelCraftStudio() {
         <h1 className="text-5xl font-extrabold text-center text-gray-900 flex items-center justify-center gap-3 mb-4">
           <span role="img" aria-label="camera">🎥</span> ReelCraft™ Studio
         </h1>
-        <p className="text-center text-gray-500 mb-10 text-lg">
+        <p className="text-center text-gray-500 mb-4 text-lg">
           Upload your video, auto-caption it with AI, get trending hashtags, and download in one click.
+        </p>
+        {/* 🚨 Kullanıcıya not: dosya isimlendirme */}
+        <p className="text-center text-sm text-gray-400 italic mb-6">
+          Pro tip: Name your video file descriptively (e.g. <code>product-demo.mp4</code>) for more accurate captions & hashtags.
         </p>
 
         <div className="space-y-8">
