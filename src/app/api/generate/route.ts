@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/app/api/generate/route.ts
+
 
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
