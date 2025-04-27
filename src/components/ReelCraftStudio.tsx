@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Download, Loader2, Sparkles, UploadCloud } from "lucide-react";
+import { Loader2, Sparkles, UploadCloud } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ReelCraftStudio() {
