@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Download, Loader2, Sparkles, UploadCloud } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function ReelCraftStudio() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -22,10 +23,7 @@ export default function ReelCraftStudio() {
       const formData = new FormData();
       formData.append("file", videoFile);
 
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch("/api/generate", { method: "POST", body: formData });
       const data = await res.json();
 
       if (data.error) {
@@ -35,8 +33,7 @@ export default function ReelCraftStudio() {
         setCaption(data.caption);
         setHashtags(data.hashtags);
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       setCaption("Error generating caption.");
       setHashtags("#Error");
     } finally {
@@ -45,87 +42,104 @@ export default function ReelCraftStudio() {
   };
 
   const handleDownload = () => {
-    alert("Video download will trigger here (placeholder)");
+    alert("Video download placeholder");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 px-4 py-12 font-sans">
-      <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl p-10">
-        <h1 className="text-5xl font-extrabold text-center text-gray-900 flex items-center justify-center gap-3 mb-4">
-          <span role="img" aria-label="camera">🎥</span> ReelCraft™ Studio
-        </h1>
-        <p className="text-center text-gray-500 mb-4 text-lg">
-          Upload your video, auto-caption it with AI, get trending hashtags, and download in one click.
-        </p>
-        {/* 🚨 Kullanıcıya not: dosya isimlendirme */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-8"
+      >
+        {/* Header */}
+        <div className="text-center mb-8">
+          <motion.span
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="inline-block text-5xl"
+          >
+            🎥
+          </motion.span>
+          <h1 className="mt-2 text-4xl font-extrabold text-gray-900">ReelCraft™ Studio</h1>
+          <p className="mt-2 text-gray-500">
+            Upload, auto-caption with AI, get hashtags & download in one click.
+          </p>
+        </div>
+
+        {/* Pro tip */}
         <p className="text-center text-sm text-gray-400 italic mb-6">
-          Pro tip: Name your video file descriptively (e.g. <code>product-demo.mp4</code>) for more accurate captions & hashtags.
+          Pro tip: Name your file descriptively (e.g. <code className="font-mono">product-demo.mp4</code>) for best results.
         </p>
 
-        <div className="space-y-8">
-          {/* Custom Upload */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-800 flex items-center gap-2">
-              <UploadCloud className="h-5 w-5" />
+        <div className="space-y-6">
+          {/* Upload */}
+          <div>
+            <label className="flex items-center text-gray-700 font-medium mb-2">
+              <UploadCloud className="w-6 h-6 mr-2 text-purple-500" />
               Upload Your Video
             </label>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full border-2 border-dashed border-purple-400 bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium py-3 rounded-xl transition"
+              className="w-full border-2 border-dashed border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-700 py-3 rounded-xl transition"
             >
-              {videoFile ? videoFile.name : "Click to Upload Video"}
+              {videoFile?.name || "Click to Upload Video"}
             </button>
             <input
+              ref={fileInputRef}
               type="file"
               accept="video/*"
-              ref={fileInputRef}
               onChange={handleUpload}
               className="hidden"
             />
           </div>
 
-          {/* Generate Button */}
+          {/* Generate */}
           <button
             onClick={handleGenerate}
             disabled={!videoFile || loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-xl text-lg font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50"
           >
-            {loading ? (
-              <Loader2 className="animate-spin h-5 w-5" />
-            ) : (
-              <Sparkles className="h-5 w-5" />
-            )}
-            Generate Captions & Hashtags
+            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
+            Generate
           </button>
 
-          {/* Caption Bubble */}
-          <div className="bg-purple-100 p-4 rounded-2xl shadow-inner text-gray-800 text-sm">
-            <label className="block text-xs font-semibold text-purple-800 mb-1">
-              📝 Generated Caption
-            </label>
-            <div className="bg-white rounded-xl px-4 py-2">{caption}</div>
+          {/* Results grid */}
+          <div className="grid gap-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-purple-50 p-4 rounded-2xl shadow-inner"
+            >
+              <h3 className="text-purple-700 font-semibold mb-1">📝 Generated Caption</h3>
+              <p className="text-gray-800">{loading ? "...processing..." : caption}</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+              className="bg-orange-50 p-4 rounded-2xl shadow-inner"
+            >
+              <h3 className="text-orange-700 font-semibold mb-1">🔥 Trending Hashtags</h3>
+              <p className="text-gray-800 whitespace-pre-wrap">{loading ? "...processing..." : hashtags}</p>
+            </motion.div>
           </div>
 
-          {/* Hashtag Bubble */}
-          <div className="bg-orange-100 p-4 rounded-2xl shadow-inner text-gray-800 text-sm">
-            <label className="block text-xs font-semibold text-orange-800 mb-1">
-              🔥 Trending Hashtags
-            </label>
-            <div className="bg-white rounded-xl px-4 py-2">{hashtags}</div>
-          </div>
-
-          {/* Download Button */}
-          <div className="flex justify-end">
+          {/* Download */}
+          <div className="text-right">
             <button
               onClick={handleDownload}
               disabled={!videoFile}
-              className="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 px-5 py-2.5 rounded-lg text-sm flex items-center gap-2 disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 px-5 py-2 rounded-lg transition disabled:opacity-50"
             >
-              <Download className="h-4 w-4" /> Download Edited Video
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
